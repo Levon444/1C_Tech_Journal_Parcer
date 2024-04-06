@@ -37,7 +37,7 @@ sub callAnalize {
                 #print "$row \n------------------\n"; 
                 if((index ($row,"DBMSSQL") != -1){
                     $context_processing = 0;
-                    
+
                     $dur = $row =~ m!^\d{2}:\d{2}\.\d{6}-(\d+)! ? $1 : 0;
                     #print $row;
                     given($row)
@@ -68,6 +68,7 @@ sub callAnalize {
                             #chomp($key);
                             $multiline = 1;
                             $context_processing = 1;
+                            
                          }
                          
                     }
