@@ -6,6 +6,7 @@ use Benchmark;
 
 use lib (Cwd::cwd() . "/Modules/");
 use CALL;
+use DBMSSQL;
 
 die('Излишнее количество аргументов') if (@ARGV > 5);
 
@@ -15,7 +16,7 @@ my ($event, $head, $res_filename, $root_dir, $glob_exp) = @ARGV;
 
 given( $event )
 {
-    when('DBMSSQL'){print 'Это событие базы данных'}
+    when('DBMSSQL'){&dbmssqlAnalize($head, $root_dir, $glob_exp, $res_filename)}
     when('CALL'){&callAnalize($head, $root_dir, $glob_exp, $res_filename)}    
     default {print "Какое то событие $event"}
 }

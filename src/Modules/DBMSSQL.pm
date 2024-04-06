@@ -1,13 +1,13 @@
-package CALL;
+package DBMSSQL;
 
 use 5.010;
 use Exporter;
 
 @ISA = qw(Exporter);
-@EXPORT = qw(callAnalize);
+@EXPORT = qw(dbmssqlAnalize);
 
 
-sub callAnalize {
+sub dbmssqlAnalize {
 
     die('Недостаточно аргументов') if (@_ < 4);
     die('Излишнее количество аргументов') if (@_ > 4);
@@ -24,18 +24,18 @@ sub callAnalize {
     chdir $root_dir or die "Ошибка обнаружения корневой директории искомых файлов: $!";
     @glob_arg = glob ($glob_exp) or die "Ошибка поиска файлов по заданному шаблону: $!";
 
-    open(my $res_file, '>', $res_filename)
+    open(my $res_file, '>:encoding(UTF-8)', $res_filename)
                 or die "Could not open result file '$res_file' $!";
 
     if(@glob_arg > 0){
         foreach $filename (@glob_arg) {
             
-            open(my $file, '<', $filename)
+            open(my $file, '<:encoding(UTF-8)', $filename)
                 or die "Could not open file '$filename' $!";
             
             while (my $row = <$file>) {
                 #print "$row \n------------------\n"; 
-                if((index ($row,"DBMSSQL") != -1){
+                if(index ($row,"DBMSSQL") != -1){
                     $context_processing = 0;
 
                     $dur = $row =~ m!^\d{2}:\d{2}\.\d{6}-(\d+)! ? $1 : 0;
