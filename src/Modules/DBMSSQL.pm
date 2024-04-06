@@ -13,7 +13,8 @@ sub callAnalize {
     die('Излишнее количество аргументов') if (@_ > 4);
 
     my ($head, $root_dir,$glob_exp, $res_filename) = @_;
-    my $multiline;
+    my $multiline = 0;
+    my $context_processing = 0;
     my $dur = 0;
     my $key = "";
     my %counting = ();
@@ -34,7 +35,9 @@ sub callAnalize {
             
             while (my $row = <$file>) {
                 #print "$row \n------------------\n"; 
-                if($row =~ m!\bCALL,.+,Context=.+!){
+                if((index ($row,"DBMSSQL") != -1){
+                    $context_processing = 0;
+                    
                     $dur = $row =~ m!^\d{2}:\d{2}\.\d{6}-(\d+)! ? $1 : 0;
                     #print $row;
                     given($row)
@@ -51,6 +54,7 @@ sub callAnalize {
                             #print $duration{$key};
                             $dur = 0;
                             $multiline = 0;
+                            $context_processing = 0;
                             $key = "";
                         }
                         when($_ ~~ /Context='/ && $multiline == 0){
@@ -63,11 +67,12 @@ sub callAnalize {
                             #print "$key \n";
                             #chomp($key);
                             $multiline = 1;
+                            $context_processing = 1;
                          }
                          
                     }
                      
-                }elsif($multiline == 1){
+                }elsif($multiline == 1 && $context_processing == 1){
                              
                             #print "$key \n";
                             
@@ -87,9 +92,12 @@ sub callAnalize {
                                     #print "CON $con_key \n------------------\n";
                                     $key = $key . $con_key;
                                     #print "KEY $key \n------------------\n";
-                                    $multiline = 0;
+                                   
                                     $duration{$key} = $dur + ($duration{$key} = undef ? 0: $duration{$key});
                                     $counting{$key} = 1 + ($counting{$key} = undef ? 0: $counting{$key});
+                                    
+                                    $multiline = 0;
+                                    $context_processing = 0;
                                     $dur = 0;
                             }else{$row =~ s![\s]!!g; $key = $key . $row}
                             
