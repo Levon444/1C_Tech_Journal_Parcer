@@ -35,10 +35,12 @@ sub dbmssqlAnalize {
             
             while (my $row = <$file>) {
                 #print "$row \n------------------\n"; 
-                if(index ($row,"DBMSSQL") != -1){
+                #print index ($row,"DBMSSQL") . "\n";
+                if(index ($row,",DBMSSQL") != -1){
                     $context_processing = 0;
 
                     $dur = $row =~ m!^\d{2}:\d{2}\.\d{6}-(\d+)! ? $1 : 0;
+                    
                     #print $row;
                     given($row)
                     {
@@ -59,7 +61,7 @@ sub dbmssqlAnalize {
                         }
                         when($_ ~~ /Context='/ && $multiline == 0){
                             #print "$_ \n------------------\n";
-                            my $ind = index($row,"'");
+                            my $ind = index($row,"'",index($row, "Context='"));
                             #print $ind;
                             my $lenght = length $row;
                             $key = ($ind == -1 ? '': substr($row, $ind + 1, $lenght - 1));
