@@ -41,13 +41,13 @@ sub dbmssqlAnalize {
 
                     $dur = $row =~ m!^\d{2}:\d{2}\.\d{6}-(\d+)! ? $1 : 0;
                     
-                    #print $row;
+                    #print $row . "\n";
                     given($row)
                     {
                         
                         when($_ ~~ /Context=([^'].+?),/ && $multiline == 0){
 
-                            #print "DURATION $dur \n";
+                            print "DURATION $dur \n";
                             $key = $1;
                             chomp($key);
                             $duration{$key} = $dur + ($duration{$key} = undef ? 0: $duration{$key}); 
@@ -60,16 +60,24 @@ sub dbmssqlAnalize {
                             $key = "";
                         }
                         when($_ ~~ /Context='/ && $multiline == 0){
-                            #print "$_ \n------------------\n";
-                            my $ind = index($row,"'",index($row, "Context='"));
-                            #print $ind;
-                            my $lenght = length $row;
-                            $key = ($ind == -1 ? '': substr($row, $ind + 1, $lenght - 1));
+
+                            $multiline = 1;
+                            $context_processing = 1;
+                           
+                            if($row =~ m!Context='[А-яA-z]+!){
+                                print "$_ \n------------------\n";
+                                my $ind = index($row,"'",index($row, "Context='"));
+                                #print $ind;
+                                my $lenght = length $row;
+                                $key = ($ind == -1 ? '': substr($row, $ind + 1, $lenght - 1));
+                                chomp($key);
+                            
+                            }else{$key = ""};
+                            
                             #print "$key \n------------------\n";
                             #print "$key \n";
                             #chomp($key);
-                            $multiline = 1;
-                            $context_processing = 1;
+                            
                             
                          }
                          
@@ -94,6 +102,7 @@ sub dbmssqlAnalize {
                                     $con_key =~ s![\s]!!g;
                                     #print "CON $con_key \n------------------\n";
                                     $key = $key . $con_key;
+                                    chomp($key);
                                     #print "KEY $key \n------------------\n";
                                    
                                     $duration{$key} = $dur + ($duration{$key} = undef ? 0: $duration{$key});
